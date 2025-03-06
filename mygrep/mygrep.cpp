@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
             cout << "\"" << searchString << "\" NOT found in \"" << bigString << "\"\n";
         }
     }
-    else if (argc == 3) { // Komentoriviargumentit käytössä
+    else if (argc == 3) { // Komentoriviargumentit
         string searchString = argv[1];
         string filename = argv[2];
         ifstream file(filename);
