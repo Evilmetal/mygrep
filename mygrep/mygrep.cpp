@@ -1,17 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <algorithm>
-#include <exception>
 
 using namespace std;
-
-// Funktio muuntaa merkkijonon pieniksi kirjaimiksi
-string toLowerCase(const string& str) {
-    string lowerStr = str;
-    transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
-    return lowerStr;
-}
 
 int main(int argc, char* argv[]) {
     if (argc == 1) { // Käyttäjä antaa syötteet käsin
@@ -32,64 +23,26 @@ int main(int argc, char* argv[]) {
             cout << "\"" << searchString << "\" NOT found in \"" << bigString << "\"\n";
         }
     }
-    else if (argc >= 3) { // Komentoriviargumentit käytössä
+    else if (argc == 3) { // Komentoriviargumentit käytössä
         string searchString = argv[1];
-        string filename = argv[argc - 1];
+        string filename = argv[2];
+        ifstream file(filename);
 
-        bool ignoreCase = false;
-        bool reverseSearch = false;
-        bool countNonMatching = false;
-
-        for (int i = 2; i < argc - 1; i++) {
-            string option = argv[i];
-            if (option == "-i") ignoreCase = true;
-            if (option == "-r") reverseSearch = true;
-            if (option == "-o") countNonMatching = true;
-        }
-
-        if (ignoreCase) {
-            searchString = toLowerCase(searchString);
-        }
-
-        try {
-            ifstream file(filename);
-            if (!file) {
-                throw runtime_error("Error: Could not open file " + filename);
-            }
-
-            string line;
-            int lineNumber = 0;
-            int matchCount = 0;
-            int nonMatchCount = 0;
-
-            while (getline(file, line)) {
-                lineNumber++;
-                string processedLine = ignoreCase ? toLowerCase(line) : line;
-                bool found = (processedLine.find(searchString) != string::npos);
-
-                if ((found && !reverseSearch) || (!found && reverseSearch)) {
-                    cout << lineNumber << ": " << line << "\n";
-                    matchCount++;
-                }
-                if (!found) {
-                    nonMatchCount++;
-                }
-            }
-
-            cout << "Occurrences of lines " << (reverseSearch ? "NOT " : "") << "containing \"" << searchString << "\": " << matchCount << "\n";
-            if (countNonMatching) {
-                cout << "Occurrences of lines NOT containing \"" << searchString << "\": " << nonMatchCount << "\n";
-            }
-
-            file.close();
-        }
-        catch (const exception& e) {
-            cerr << "An exception occurred: " << e.what() << "\n";
+        if (!file) {
+            cerr << "Error: Could not open file " << filename << "\n";
             return 1;
         }
+
+        string line;
+        while (getline(file, line)) {
+            if (line.find(searchString) != string::npos) {
+                cout << line << "\n";
+            }
+        }
+        file.close();
     }
     else {
-        cerr << "Usage: ./mygrep [search_string] [-i] [-r] [-o] [filename]" << endl;
+        cerr << "Usage: ./mygrep [search_string filename]" << endl;
         return 1;
     }
 
